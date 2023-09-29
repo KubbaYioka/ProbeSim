@@ -1,6 +1,9 @@
 -- Import the Particle class
 local Particle = require("Particle")
 
+math.randomseed(os.time())
+
+
 -- Colors
 white = {1, 1, 1}
 black = {0, 0, 0}
@@ -145,6 +148,24 @@ function love.update(dt)
         end
     end
 
+    for _, planet in ipairs({earth, mars}) do
+        for _, particle in ipairs(particles) do
+            local dx = planet.x - particle.x
+            local dy = planet.y - particle.y
+            local distance = math.sqrt(dx * dx + dy * dy)
+            
+            local force = (planet.mass * particle.mass) / (distance * distance)
+            local fx = force * (dx / distance)
+            local fy = force * (dy / distance)
+            
+            particle.speedX = particle.speedX + fx / particle.mass * dt
+            particle.speedY = particle.speedY + fy / particle.mass * dt
+    
+            particle.x = particle.x + particle.speedX * dt
+            particle.y = particle.y + particle.speedY * dt
+        end
+    end
+  
     -- Update particle positions
     for _, particle in ipairs(particles) do
         particle.x = particle.x + particle.speedX * dt

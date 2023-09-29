@@ -14,7 +14,8 @@ end
 
 function Particle:draw()
     love.graphics.setColor(white)
-    love.graphics.circle("fill", self.x, self.y, 1)
+    love.graphics.circle("fill", self.x, self.y, 0.5)  -- Change size here
 end
+
 
 return Particle
