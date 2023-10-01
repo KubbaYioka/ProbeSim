@@ -93,14 +93,15 @@ function love.update(dt)
             local distance = math.sqrt(dx * dx + dy * dy)
             -- Collision detection and explosion
             if distance < planet.radius then
-                -- Generate 5-8 particles
-                local particleCount = math.random(5, 12) -- Later, this number should scale to the mass of the probe that crashed
+                -- Calculate the angle between the probe and the planet
+                local baseAngle = math.atan2(probe.y - planet.y, probe.x - planet.x)
+                -- Generate 5-12 particles
+                local particleCount = math.random(5, 12)
                 for i = 1, particleCount do
-                    local probeAngle = math.atan2(probe.speedY, probe.speedX)
-                    local dispersionAngle = math.random() * math.pi/3 - math.pi/6  -- Random angle between -90 and 90 degrees
-                    local angle = probeAngle + dispersionAngle
-                    local speed = math.random(10, 20)  -- random speed between 50 and 100
-                    local particle = Particle:new(probe.x, probe.y, math.cos(angle) * speed, math.sin(angle) * speed, nil, probe.mass)
+                    local dispersionAngle = math.random() * math.pi/3 - math.pi/6  -- Random angle between -30 and 30 degrees
+                    local angle = baseAngle + dispersionAngle
+                    local speed = math.random(10, 20)
+                    local particle = Particle:new(probe.x, probe.y, math.cos(angle) * speed, math.sin(angle) * speed)
                     table.insert(particles, particle)
                 end
                 -- Remove the probe
@@ -179,8 +180,11 @@ function love.update(dt)
     else
         -- Panning
         if isPanning then
-            panX = mouseX - initialPanX
-            panY = mouseY - initialPanY
+            local dx = (mouseX - initialPanX) / scaleFactor
+            local dy = (mouseY - initialPanY) / scaleFactor
+            panX = panX + dx
+            panY = panY + dy
+            initialPanX, initialPanY = mouseX, mouseY  -- Update the initial pan position to the current mouse position
         end
     end
 end
@@ -215,7 +219,7 @@ end
 
 function love.mousepressed(x, y, button)
     if button == 1 then
-        initialPanX, initialPanY = x - panX, y - panY
+        initialPanX, initialPanY = x, y
         isPanning = true
     end
 end
@@ -226,10 +230,35 @@ function love.mousereleased(x, y, button)
     end
 end
 
+
+
 function love.wheelmoved(x, y)
+    -- Calculate the current center of the screen in world coordinates
+    local worldCenterX = (love.graphics.getWidth() / 2 - panX) / scaleFactor
+    local worldCenterY = (love.graphics.getHeight() / 2 - panY) / scaleFactor
+
+    -- Apply the zoom
     if y > 0 then
         scaleFactor = scaleFactor * 1.1
     else
         scaleFactor = scaleFactor * 0.9
     end
+
+    -- Calculate the new position of the previously computed center in screen coordinates after the zoom
+    local newScreenCenterX = worldCenterX * scaleFactor
+    local newScreenCenterY = worldCenterY * scaleFactor
+
+    -- Adjust the pan to make sure the center remains the same
+    panX = love.graphics.getWidth() / 2 - newScreenCenterX
+    panY = love.graphics.getHeight() / 2 - newScreenCenterY
 end
+
+
+
+
+
+
+
+
+
+
