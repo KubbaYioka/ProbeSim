@@ -3,7 +3,6 @@ local Particle = require("Particle")
 
 math.randomseed(os.time())
 
-
 -- Colors
 white = {1, 1, 1}
 black = {0, 0, 0}
@@ -92,17 +91,16 @@ function love.update(dt)
             local dx = planet.x - probe.x
             local dy = planet.y - probe.y
             local distance = math.sqrt(dx * dx + dy * dy)
-            
             -- Collision detection and explosion
             if distance < planet.radius then
                 -- Generate 5-8 particles
-                local particleCount = math.random(5, 8)
+                local particleCount = math.random(5, 12) -- Later, this number should scale to the mass of the probe that crashed
                 for i = 1, particleCount do
                     local probeAngle = math.atan2(probe.speedY, probe.speedX)
-                    local dispersionAngle = math.random() * math.pi - math.pi / 2  -- Random angle between -90 and 90 degrees
+                    local dispersionAngle = math.random() * math.pi/3 - math.pi/6  -- Random angle between -90 and 90 degrees
                     local angle = probeAngle + dispersionAngle
-                    local speed = math.random(50, 100)  -- random speed between 50 and 100
-                    local particle = Particle:new(probe.x, probe.y, math.cos(angle) * speed, math.sin(angle) * speed)
+                    local speed = math.random(10, 20)  -- random speed between 50 and 100
+                    local particle = Particle:new(probe.x, probe.y, math.cos(angle) * speed, math.sin(angle) * speed, nil, probe.mass)
                     table.insert(particles, particle)
                 end
                 -- Remove the probe
